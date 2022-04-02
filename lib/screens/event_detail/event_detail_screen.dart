@@ -79,8 +79,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               padding: const EdgeInsets.only(bottom: 37),
               alignment: Alignment.bottomCenter,
               child: cb.state.reservationTime
-                      // .isBefore(DateTime.now().add(const Duration(minutes: 30)))
-                      .isAfter(DateTime.now().add(const Duration(minutes: 30)))
+                      .isBefore(DateTime.now().add(const Duration(minutes: 30)))
+                  // .isAfter(DateTime.now()
+                  //     .add(const Duration(minutes: 30))) // for test
                   ? beforeBottomButtons()
                   : afterBottomButtons(),
             ),

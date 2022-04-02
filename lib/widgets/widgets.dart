@@ -1,4 +1,5 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -51,6 +52,10 @@ class ToggleableTimePicker extends StatefulWidget {
   const ToggleableTimePicker(
       {Key? key,
       required this.title,
+      this.toggleButton = false,
+      this.toggleButtonText,
+      this.onToggled,
+      this.toggleOnOff = false,
       required this.veterinarians,
       required this.initialSelectedVeterinarian,
       required this.onSelectVeterinarian,
@@ -62,6 +67,10 @@ class ToggleableTimePicker extends StatefulWidget {
       required this.closedEventStyle})
       : super(key: key);
   final String title;
+  final bool toggleButton;
+  final String? toggleButtonText;
+  final Future<void> Function(bool)? onToggled;
+  final bool toggleOnOff;
   final List<Veterinarian> veterinarians;
   final Veterinarian initialSelectedVeterinarian;
   final void Function(Veterinarian) onSelectVeterinarian;
@@ -77,7 +86,17 @@ class ToggleableTimePicker extends StatefulWidget {
 }
 
 class _ToggleableTimePickerState extends State<ToggleableTimePicker> {
+  late Veterinarian _selectedVeterinarian;
+  late List<Veterinarian> _veterinarians;
+
   bool _showVetList = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedVeterinarian = widget.initialSelectedVeterinarian;
+    _veterinarians = widget.veterinarians;
+  }
 
   final TextStyle _vetTextStyle = const TextStyle(
       color: Color(0xff000000),
@@ -95,6 +114,10 @@ class _ToggleableTimePickerState extends State<ToggleableTimePicker> {
       content: widget.selectedReserves.isNotEmpty
           ? widget.selectedReserves.first.time
           : '선택',
+      toggleButton: widget.toggleButton,
+      toggleButtonText: widget.toggleButtonText,
+      onToggled: widget.onToggled,
+      toggleOnOff: widget.toggleOnOff,
     );
   }
 
@@ -106,38 +129,7 @@ class _ToggleableTimePickerState extends State<ToggleableTimePicker> {
           child: Column(
             children: [
               veterinarianProfiles(),
-              // const SizedBox(height: 10),
-              // timetableBuilder(
-              //     '오전',
-              //     rs,
-              //     (event) => [
-              //           "10:00",
-              //           "10:30",
-              //           "11:00",
-              //           "11:30",
-              //           "12:00",
-              //           "12:30"
-              //         ].contains(event['time'])),
-              // const SizedBox(height: 10),
-              // timetableBuilder(
-              //     '오후',
-              //     rs,
-              //     (event) => [
-              //           "13:00",
-              //           "13:30",
-              //           "14:00",
-              //           "14:30",
-              //           "15:00",
-              //           "15:30",
-              //           "16:00",
-              //           "16:30",
-              //           "17:00",
-              //           "17:30",
-              //           "18:30",
-              //           "19:00",
-              //           "19:30"
-              //         ].contains(event['time'])),
-            ]..addAll(widget.reserveDataSource.map((reserveList) {
+              ...widget.reserveDataSource.map((reserveList) {
                 return Column(
                   children: [
                     const SizedBox(height: 10),
@@ -151,7 +143,8 @@ class _ToggleableTimePickerState extends State<ToggleableTimePicker> {
                         closedEventStyle: widget.closedEventStyle),
                   ],
                 );
-              })),
+              }),
+            ],
           ),
         ),
         _showVetList
@@ -171,15 +164,15 @@ class _ToggleableTimePickerState extends State<ToggleableTimePicker> {
                   child: ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
                     child: Column(
-                        children: widget.veterinarians
-                            .where((vet) =>
-                                vet.name !=
-                                widget.initialSelectedVeterinarian.name)
+                        children: _veterinarians
+                            .where(
+                                (vet) => vet.name != _selectedVeterinarian.name)
                             .toList()
                             .map((vet) => InkWell(
                                   onTap: () {
                                     widget.onSelectVeterinarian(vet);
                                     setState(() {
+                                      _selectedVeterinarian = vet;
                                       _showVetList = false;
                                     });
                                   },
@@ -231,29 +224,33 @@ class _ToggleableTimePickerState extends State<ToggleableTimePicker> {
     return InkWell(
       onTap: () {
         setState(() {
-          if (widget.veterinarians.length >= 2) {
+          if (_veterinarians.length >= 2) {
             _showVetList = !_showVetList;
           }
         });
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 30,
-            width: 30,
-            child: widget.initialSelectedVeterinarian.profileImage,
-          ),
-          const SizedBox(width: 5),
-          Text(
-            widget.initialSelectedVeterinarian.name + " 원장",
-            style: _vetTextStyle,
-          ),
-          const SizedBox(width: 10),
-          widget.veterinarians.length >= 2
-              ? Image.asset('assets/images/iconDefaultEnter2PxGreyDropdown.png')
-              : Container(),
-        ],
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 30,
+              width: 30,
+              child: _selectedVeterinarian.profileImage,
+            ),
+            const SizedBox(width: 5),
+            Text(
+              _selectedVeterinarian.name + " 원장",
+              style: _vetTextStyle,
+            ),
+            const SizedBox(width: 10),
+            _veterinarians.length >= 2
+                ? Image.asset(
+                    'assets/images/iconDefaultEnter2PxGreyDropdown.png')
+                : Container(),
+          ],
+        ),
       ),
     );
   }
@@ -345,7 +342,7 @@ class TimeTableBuilder extends StatelessWidget {
             noneEventStyle.backgroundColor,
           );
 
-        case ReserveType.reserve:
+        case ReserveType.reserved:
           return timeEventTemplateWidget(
             reserve,
             existEventStyle.fontColor,
@@ -851,25 +848,43 @@ class _LabeledListState extends State<LabeledList> {
 }
 
 class ToggleableHeader extends StatefulWidget {
-  const ToggleableHeader(
-      {Key? key,
-      required this.title,
-      required this.child,
-      required this.childHeight,
-      required this.content})
-      : super(key: key);
+  const ToggleableHeader({
+    Key? key,
+    required this.title,
+    required this.child,
+    required this.childHeight,
+    required this.content,
+    this.toggleButton = false,
+    this.toggleButtonText,
+    this.onToggled,
+    this.toggleOnOff = false,
+  }) : super(key: key);
   final String title;
   final Widget child;
   final double childHeight;
   final String content;
+
+  final bool toggleButton;
+  final String? toggleButtonText;
+  final Future<void> Function(bool)? onToggled;
+  final bool toggleOnOff;
 
   @override
   State<ToggleableHeader> createState() => _ToggleableHeaderState();
 }
 
 class _ToggleableHeaderState extends State<ToggleableHeader> {
-  bool _expandSize = false;
-  bool _showChild = false;
+  late bool _expandSize;
+  late bool _showChild;
+  // late bool _isOn;
+
+  @override
+  void initState() {
+    super.initState();
+    _expandSize = widget.toggleButton;
+    _showChild = widget.toggleButton;
+    // _isOn = widget.initialToggleState;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -906,30 +921,53 @@ class _ToggleableHeaderState extends State<ToggleableHeader> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(widget.title, style: _labelStyle),
-          InkWell(
-            onTap: () {
-              setState(() {
-                if (_expandSize) {
-                  _showChild = false;
-                }
-                _expandSize = !_expandSize;
-              });
-            },
-            child: Container(
-              width: 140,
-              height: 40,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-                color: Color(0xfff7f7f7),
-              ),
-              child: Center(
-                child: Text(
-                  widget.content,
-                  style: _highlightTextStyle,
-                ),
-              ),
-            ),
-          )
+          widget.toggleButton
+              ? SizedBox(
+                  height: 40,
+                  child: Row(
+                    children: [
+                      Text(
+                        widget.toggleButtonText!,
+                        style: _highlightTextStyle,
+                      ),
+                      const SizedBox(width: 10),
+                      CupertinoSwitch(
+                        // value: _isOn,
+                        // onChanged: (isOn) async {
+                        //   isOn = await widget.onToggled!(isOn);
+                        //   setState(() {
+                        //     _isOn = isOn;
+                        //   });
+                        // },
+                        value: widget.toggleOnOff,
+                        onChanged: widget.onToggled,
+                      )
+                    ],
+                  ))
+              : InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (_expandSize) {
+                        _showChild = false;
+                      }
+                      _expandSize = !_expandSize;
+                    });
+                  },
+                  child: Container(
+                    width: 140,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      color: Color(0xfff7f7f7),
+                    ),
+                    child: Center(
+                      child: Text(
+                        widget.content,
+                        style: _highlightTextStyle,
+                      ),
+                    ),
+                  ),
+                )
         ],
       ),
     );

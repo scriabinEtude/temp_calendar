@@ -431,7 +431,7 @@ class _MainCalendarScreenState extends State<MainCalendarScreen> {
                                   fontStyle: FontStyle.normal,
                                   fontSize: 15.0)),
                           const SizedBox(width: 11.6),
-                          rs[index].reserveType == ReserveType.reserve
+                          rs[index].reserveType == ReserveType.reserved
                               ? ClipRRect(
                                   borderRadius: const BorderRadius.all(
                                       Radius.circular(10)),

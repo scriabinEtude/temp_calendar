@@ -67,7 +67,7 @@ class Reserve {
 final reserveDataSource = <Map<String, dynamic>>[
   {
     'time': "09:00",
-    'status': ReserveType.reserve,
+    'status': ReserveType.reserved,
     'title': "라떼 진료",
     'age': 3,
     'kind': '말티즈',
@@ -77,7 +77,7 @@ final reserveDataSource = <Map<String, dynamic>>[
   },
   {
     'time': "09:30",
-    'status': ReserveType.reserve,
+    'status': ReserveType.reserved,
     'title': "누리 진료",
     'age': 3,
     'kind': '푸들',
@@ -91,7 +91,7 @@ final reserveDataSource = <Map<String, dynamic>>[
   },
   {
     "time": "10:30",
-    'status': ReserveType.reserve,
+    'status': ReserveType.reserved,
     'title': "산 건강검진",
     'age': 8,
     'kind': '믹스묘',
@@ -109,7 +109,7 @@ final reserveDataSource = <Map<String, dynamic>>[
   },
   {
     "time": "12:00",
-    'status': ReserveType.reserve,
+    'status': ReserveType.reserved,
     'title': "삼식이 진료",
     'age': 9,
     'kind': '러시안블루',
@@ -139,7 +139,7 @@ final reserveDataSource = <Map<String, dynamic>>[
   },
   {
     'time': "15:00",
-    'status': ReserveType.reserve,
+    'status': ReserveType.reserved,
     'title': "기네스 수술",
     'age': 3,
     'kind': '말티즈',
@@ -153,7 +153,7 @@ final reserveDataSource = <Map<String, dynamic>>[
   },
   {
     'time': "16:00",
-    'status': ReserveType.reserve,
+    'status': ReserveType.reserved,
     'title': "유디 진료",
     'age': 3,
     'kind': '푸들',
@@ -196,7 +196,7 @@ final reserveDataSource = <Map<String, dynamic>>[
 ];
 
 final rs = reserveDataSource.map((r) {
-  if (r['status'] == ReserveType.reserve) {
+  if (r['status'] == ReserveType.reserved) {
     return Reserve(
         time: r['time'],
         reserveType: r['status'],

@@ -1,4 +1,4 @@
-enum ReserveType { none, closed, reserve }
+enum ReserveType { none, closed, reserved }
 
 enum RequestType {
   general,
